@@ -1,62 +1,79 @@
-// ===============================
-// AUTH CHECK
-// ===============================
-const username = localStorage.getItem("username");
-if (!username) {
-  window.location.href = "index.html";
+// ==========================
+// CONFIG
+// ==========================
+const TOTAL_BOOKS = 50;
+const PDF_FOLDER = "../pdfs"; // do NOT change structure
+
+// ==========================
+// INIT
+// ==========================
+document.addEventListener("DOMContentLoaded", () => {
+  loadUser();
+  loadBooks();
+});
+
+// ==========================
+// USER
+// ==========================
+function loadUser() {
+  const user = localStorage.getItem("username") || "User";
+  const el = document.querySelector("#usernameDisplay");
+  if (el) el.innerText = user;
 }
 
-document.getElementById("usernameDisplay").innerText = username;
-
-// ===============================
-// BOOK CONFIG (STATIC FOR GITHUB PAGES)
-// ===============================
-const TOTAL_BOOKS = 50;
-const PDF_BASE_PATH = "../pdfs";
-
-// ===============================
-// LOAD BOOKS
-// ===============================
+// ==========================
+// BOOK LOADER (STATIC)
+// ==========================
 function loadBooks() {
-  const container = document.getElementById("booksContainer");
+  const container = document.querySelector("#booksContainer");
+
+  if (!container) {
+    console.error("booksContainer not found");
+    return;
+  }
+
   container.innerHTML = "";
 
   for (let i = 1; i <= TOTAL_BOOKS; i++) {
-    const bookId = `book_${String(i).padStart(2, "0")}`;
-    const pdfPath = `${PDF_BASE_PATH}/${bookId}.pdf`;
+    const num = String(i).padStart(2, "0");
+    const bookName = `book_${num}`;
+    const pdfPath = `${PDF_FOLDER}/${bookName}.pdf`;
 
     const card = document.createElement("div");
     card.className = "book-card";
+    card.setAttribute("data-title", bookName.toLowerCase());
 
     card.innerHTML = `
-      <h3>${bookId}</h3>
-      <p>
-        <a href="${pdfPath}" target="_blank" onclick="logActivity('Viewed ${bookId}')">View</a>
-        |
-        <a href="${pdfPath}" download onclick="logActivity('Downloaded ${bookId}')">Download</a>
-      </p>
+      <h3>${bookName}</h3>
+      <div>
+        <a href="${pdfPath}" target="_blank"
+           onclick="logActivity('Viewed ${bookName}')">View</a>
+        &nbsp;|&nbsp;
+        <a href="${pdfPath}" download
+           onclick="logActivity('Downloaded ${bookName}')">Download</a>
+      </div>
     `;
 
     container.appendChild(card);
   }
 }
 
-// ===============================
-// SEARCH
-// ===============================
+// ==========================
+// SEARCH (uses existing input)
+// ==========================
 function searchBooks() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
+  const query = document.querySelector("#searchInput")?.value.toLowerCase() || "";
   const books = document.querySelectorAll(".book-card");
 
   books.forEach(book => {
-    const title = book.querySelector("h3").innerText.toLowerCase();
+    const title = book.dataset.title;
     book.style.display = title.includes(query) ? "block" : "none";
   });
 }
 
-// ===============================
-// ACTIVITY TRACKING
-// ===============================
+// ==========================
+// ACTIVITY (local only)
+// ==========================
 function logActivity(action) {
   let activity = JSON.parse(localStorage.getItem("activity")) || [];
   activity.unshift(action);
@@ -66,27 +83,23 @@ function logActivity(action) {
 }
 
 function renderActivity() {
-  const list = document.getElementById("activityList");
-  list.innerHTML = "";
+  const list = document.querySelector("#activityList");
+  if (!list) return;
 
+  list.innerHTML = "";
   const activity = JSON.parse(localStorage.getItem("activity")) || [];
+
   activity.forEach(item => {
     const li = document.createElement("li");
-    li.innerText = item;
+    li.textContent = item;
     list.appendChild(li);
   });
 }
 
-// ===============================
+// ==========================
 // LOGOUT
-// ===============================
+// ==========================
 function logout() {
   localStorage.clear();
   window.location.href = "index.html";
 }
-
-// ===============================
-// INIT
-// ===============================
-loadBooks();
-renderActivity();
