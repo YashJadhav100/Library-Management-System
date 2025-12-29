@@ -1,27 +1,13 @@
-/* ================================
-   CONFIG
-================================ */
-const BASE_URL = "https://yashjadhav100.github.io/Library-Management-System";
+// ===============================
+// GitHub Pages – Static Library JS
+// ===============================
 
-/* ================================
-   STATIC BOOK DATA (GitHub Pages)
-================================ */
-const BOOKS = [
-  { title: "book_01", filename: "book_01.pdf" },
-  { title: "book_02", filename: "book_02.pdf" },
-  { title: "book_03", filename: "book_03.pdf" },
-  { title: "book_04", filename: "book_04.pdf" },
-  { title: "book_05", filename: "book_05.pdf" },
-  { title: "book_06", filename: "book_06.pdf" },
-  { title: "book_07", filename: "book_07.pdf" },
-  { title: "book_08", filename: "book_08.pdf" },
-  { title: "book_09", filename: "book_09.pdf" },
-  { title: "book_10", filename: "book_10.pdf" }
-];
+// IMPORTANT:
+// GitHub Pages cannot list directories dynamically.
+// So we maintain a single source of truth here.
+const TOTAL_BOOKS = 50; // <-- change ONLY this if PDFs increase
+const PDF_BASE_PATH = "../pdfs/";
 
-/* ================================
-   INIT
-================================ */
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname.includes("dashboard")) {
     checkAuth();
@@ -30,13 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/* ================================
-   AUTH
-================================ */
+/* ---------- AUTH ---------- */
 function login() {
   const user = document.getElementById("username").value.trim();
-  if (!user) return alert("Enter username");
-
+  if (!user) {
+    alert("Enter username");
+    return;
+  }
   localStorage.setItem("user", user);
   window.location.href = "dashboard.html";
 }
@@ -52,78 +38,77 @@ function logout() {
 
 function checkAuth() {
   const user = localStorage.getItem("user");
-  if (!user) window.location.href = "index.html";
-
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
   document.getElementById("welcome").innerText = `Welcome, ${user}`;
 }
 
-/* ================================
-   LOAD BOOKS
-================================ */
+/* ---------- LOAD BOOKS ---------- */
 function loadBooks() {
   const list = document.getElementById("bookList");
   list.innerHTML = "";
 
-  if (BOOKS.length === 0) {
-    list.innerHTML = "<p>No books available.</p>";
-    return;
+  const books = [];
+  for (let i = 1; i <= TOTAL_BOOKS; i++) {
+    const num = String(i).padStart(2, "0");
+    books.push(`book_${num}.pdf`);
   }
 
-  renderBooks(BOOKS);
+  renderBooks(books);
 }
 
-/* ================================
-   SEARCH
-================================ */
+/* ---------- SEARCH ---------- */
 function searchBooks() {
-  const q = document.getElementById("searchInput").value.trim().toLowerCase();
-  const list = document.getElementById("bookList");
-  list.innerHTML = "";
+  const query = document.getElementById("searchInput").value.toLowerCase().trim();
 
-  if (!q) {
-    renderBooks(BOOKS);
+  const books = [];
+  for (let i = 1; i <= TOTAL_BOOKS; i++) {
+    const num = String(i).padStart(2, "0");
+    books.push(`book_${num}.pdf`);
+  }
+
+  if (!query) {
+    renderBooks(books);
     return;
   }
 
-  const filtered = BOOKS.filter(b =>
-    b.title.toLowerCase().includes(q)
+  const filtered = books.filter(book =>
+    book.toLowerCase().includes(query)
   );
-
-  if (filtered.length === 0) {
-    list.innerHTML = "<p>No matching books found.</p>";
-    return;
-  }
 
   renderBooks(filtered);
 }
 
-/* ================================
-   RENDER
-================================ */
+/* ---------- RENDER ---------- */
 function renderBooks(books) {
   const list = document.getElementById("bookList");
   list.innerHTML = "";
 
-  books.forEach(book => {
+  if (books.length === 0) {
+    list.innerHTML = "<p>No matching books found.</p>";
+    return;
+  }
+
+  books.forEach(file => {
+    const title = file.replace(".pdf", "").replace("_", " ");
+
     const div = document.createElement("div");
     div.className = "book-card";
-
     div.innerHTML = `
-      <b>${book.title}</b><br/>
-      <a href="${BASE_URL}/pdfs/${book.filename}" target="_blank"
-         onclick="trackActivity('Viewed ${book.title}')">View</a>
+      <b>${title}</b><br/>
+      <a href="${PDF_BASE_PATH}${file}" target="_blank"
+         onclick="trackActivity('Viewed ${title}')">View</a>
       |
-      <a href="${BASE_URL}/pdfs/${book.filename}" download
-         onclick="trackActivity('Downloaded ${book.title}')">Download</a>
+      <a href="${PDF_BASE_PATH}${file}" download
+         onclick="trackActivity('Downloaded ${title}')">Download</a>
     `;
-
     list.appendChild(div);
   });
 }
 
-/* ================================
-   ACTIVITY
-================================ */
+/* ---------- ACTIVITY ---------- */
 function trackActivity(action) {
   let activity = JSON.parse(localStorage.getItem("activity")) || [];
   activity.unshift(action);
@@ -137,9 +122,9 @@ function loadActivity() {
   const activity = JSON.parse(localStorage.getItem("activity")) || [];
   list.innerHTML = "";
 
-  activity.forEach(a => {
+  activity.forEach(item => {
     const li = document.createElement("li");
-    li.innerText = a;
+    li.innerText = item;
     list.appendChild(li);
   });
 }
