@@ -1,31 +1,36 @@
-body {
-  margin: 0;
+* {
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
-  background: #f7f8fa;
 }
 
-/* Layout */
+body {
+  margin: 0;
+  background: #f6f7fb;
+}
+
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
   width: 220px;
-  background: #fff;
+  background: #ffffff;
   padding: 20px;
   border-right: 1px solid #ddd;
 }
 
-.sidebar button {
-  width: 100%;
+.sidebar h2 {
+  margin-top: 0;
+}
+
+.logout {
   margin-top: 20px;
   padding: 10px;
   background: #e74c3c;
-  color: white;
   border: none;
-  border-radius: 6px;
+  color: white;
   cursor: pointer;
 }
 
@@ -33,23 +38,23 @@ body {
 .main-content {
   flex: 1;
   padding: 30px;
-  overflow-y: auto; /* 🔥 FIX */
+  overflow-y: auto; /* ✅ THIS FIXES THE ISSUE */
 }
 
 /* Search */
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
 }
 
 .search-bar button {
-  padding: 12px 20px;
+  padding: 10px 20px;
 }
 
 /* Books grid */
@@ -60,21 +65,25 @@ body {
   margin-bottom: 40px;
 }
 
-/* Book card */
 .book-card {
-  background: #fff;
-  padding: 16px;
+  background: white;
+  padding: 15px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-.book-card a {
+.book-card h4 {
+  margin-top: 0;
+}
+
+.book-card .actions a {
+  margin-right: 10px;
   text-decoration: none;
   color: #2c3e50;
-  font-weight: 500;
+  font-weight: bold;
 }
 
 /* Activity */
-#activityList {
-  margin-top: 10px;
+#activityList li {
+  margin-bottom: 6px;
 }
