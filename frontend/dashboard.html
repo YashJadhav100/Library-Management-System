@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Library Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="container">
-  <aside class="sidebar">
-    <h2>📚 Library</h2>
-    <p id="welcome">Welcome</p>
-    <button class="logout" onclick="logout()">Logout</button>
-  </aside>
+<div class="sidebar">
+  <h2>📚 Library</h2>
+  <p id="welcome">Welcome</p>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
 
-  <main class="main-content">
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search books..." />
-      <button onclick="searchBooks()">Search</button>
-    </div>
+<div class="main">
+  <div class="search-bar">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search books by title"
+      onkeyup="searchBooks()"
+    />
+    <button>Search</button>
+  </div>
 
-    <h3>Available Books</h3>
-    <div id="bookList"></div>
+  <h3>Available Books</h3>
 
-    <h3>Your Activity</h3>
-    <ul id="activityList"></ul>
-  </main>
+  <!-- BOOKS RENDER HERE -->
+  <div id="bookList" class="book-grid"></div>
+
+  <h3>Your Activity</h3>
+  <ul id="activityList"></ul>
 </div>
 
 <script src="script.js"></script>
