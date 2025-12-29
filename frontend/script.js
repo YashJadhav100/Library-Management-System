@@ -1,15 +1,5 @@
-// ===============================
-// GitHub Pages – Static Library JS
-// ===============================
-
-// IMPORTANT:
-// GitHub Pages cannot list directories dynamically.
-// So we maintain a single source of truth here.
-const TOTAL_BOOKS = 50; // <-- change ONLY this if PDFs increase
-const PDF_BASE_PATH = "../pdfs/";
-
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.pathname.includes("dashboard")) {
+  if (location.pathname.includes("dashboard")) {
     checkAuth();
     loadBooks();
     loadActivity();
@@ -19,12 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ---------- AUTH ---------- */
 function login() {
   const user = document.getElementById("username").value.trim();
-  if (!user) {
-    alert("Enter username");
-    return;
-  }
+  if (!user) return alert("Enter username");
   localStorage.setItem("user", user);
-  window.location.href = "dashboard.html";
+  location.href = "dashboard.html";
 }
 
 function register() {
@@ -33,78 +20,52 @@ function register() {
 
 function logout() {
   localStorage.clear();
-  window.location.href = "index.html";
+  location.href = "index.html";
 }
 
 function checkAuth() {
   const user = localStorage.getItem("user");
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+  if (!user) location.href = "index.html";
   document.getElementById("welcome").innerText = `Welcome, ${user}`;
 }
 
-/* ---------- LOAD BOOKS ---------- */
+/* ---------- LOAD BOOKS (STATIC) ---------- */
 function loadBooks() {
   const list = document.getElementById("bookList");
   list.innerHTML = "";
 
   const books = [];
-  for (let i = 1; i <= TOTAL_BOOKS; i++) {
+  for (let i = 1; i <= 50; i++) {
     const num = String(i).padStart(2, "0");
-    books.push(`book_${num}.pdf`);
+    books.push({
+      title: `book_${num}`,
+      file: `../pdfs/book_${num}.pdf`
+    });
   }
 
-  renderBooks(books);
+  books.forEach(book => {
+    const div = document.createElement("div");
+    div.className = "book-card";
+    div.innerHTML = `
+      <strong>${book.title}</strong><br/>
+      <a href="${book.file}" target="_blank"
+         onclick="trackActivity('Viewed ${book.title}')">View</a>
+      |
+      <a href="${book.file}" download
+         onclick="trackActivity('Downloaded ${book.title}')">Download</a>
+    `;
+    list.appendChild(div);
+  });
 }
 
 /* ---------- SEARCH ---------- */
 function searchBooks() {
-  const query = document.getElementById("searchInput").value.toLowerCase().trim();
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const cards = document.querySelectorAll(".book-card");
 
-  const books = [];
-  for (let i = 1; i <= TOTAL_BOOKS; i++) {
-    const num = String(i).padStart(2, "0");
-    books.push(`book_${num}.pdf`);
-  }
-
-  if (!query) {
-    renderBooks(books);
-    return;
-  }
-
-  const filtered = books.filter(book =>
-    book.toLowerCase().includes(query)
-  );
-
-  renderBooks(filtered);
-}
-
-/* ---------- RENDER ---------- */
-function renderBooks(books) {
-  const list = document.getElementById("bookList");
-  list.innerHTML = "";
-
-  if (books.length === 0) {
-    list.innerHTML = "<p>No matching books found.</p>";
-    return;
-  }
-
-  books.forEach(file => {
-    const title = file.replace(".pdf", "").replace("_", " ");
-
-    const div = document.createElement("div");
-    div.className = "book-card";
-    div.innerHTML = `
-      <b>${title}</b><br/>
-      <a href="${PDF_BASE_PATH}${file}" target="_blank"
-         onclick="trackActivity('Viewed ${title}')">View</a>
-      |
-      <a href="${PDF_BASE_PATH}${file}" download
-         onclick="trackActivity('Downloaded ${title}')">Download</a>
-    `;
-    list.appendChild(div);
+  cards.forEach(card => {
+    card.style.display =
+      card.innerText.toLowerCase().includes(q) ? "block" : "none";
   });
 }
 
@@ -122,9 +83,9 @@ function loadActivity() {
   const activity = JSON.parse(localStorage.getItem("activity")) || [];
   list.innerHTML = "";
 
-  activity.forEach(item => {
+  activity.forEach(a => {
     const li = document.createElement("li");
-    li.innerText = item;
+    li.innerText = a;
     list.appendChild(li);
   });
 }
