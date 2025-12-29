@@ -1,40 +1,24 @@
-// ==========================
-// CONFIG
-// ==========================
-const TOTAL_BOOKS = 50;
-const BOOKS_PER_PAGE = 10;
-const PDF_FOLDER = "../pdfs";
+// ✅ detect if running on GitHub Pages
+const IS_GITHUB_PAGES = window.location.hostname.includes("github.io");
 
-let currentPage = 1;
-
-// ==========================
-// PAGE INIT
-// ==========================
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname.includes("dashboard")) {
-    protectDashboard();
-    loadUser();
-    renderBooks();
-    renderActivity();
+    checkAuth();
+    loadBooks();
+    loadActivity();
   }
 });
 
-// ==========================
-// LOGIN / AUTH
-// ==========================
+/* ---------- AUTH ---------- */
 function login() {
-  const input = document.querySelector("#username");
-  if (!input || !input.value.trim()) {
-    alert("Please enter a username");
-    return;
-  }
-
-  localStorage.setItem("username", input.value.trim());
+  const user = document.getElementById("username").value;
+  if (!user) return alert("Enter username");
+  localStorage.setItem("user", user);
   window.location.href = "dashboard.html";
 }
 
 function register() {
-  login(); // demo system
+  login();
 }
 
 function logout() {
@@ -42,120 +26,136 @@ function logout() {
   window.location.href = "index.html";
 }
 
-function protectDashboard() {
-  const user = localStorage.getItem("username");
-  if (!user) {
-    window.location.href = "index.html";
+function checkAuth() {
+  const user = localStorage.getItem("user");
+  if (!user) window.location.href = "index.html";
+  document.getElementById("welcome").innerText = `Welcome, ${user}`;
+}
+
+/* ---------- LOAD ALL BOOKS ---------- */
+async function loadBooks() {
+  const list = document.getElementById("bookList");
+  list.innerHTML = "Loading books...";
+
+  try {
+    const res = await fetch(`${API}/books`);
+    if (!res.ok) throw new Error("Books API failed");
+
+    const books = await res.json();
+
+    if (books.length === 0) {
+      list.innerHTML = "<p>No books available.</p>";
+      return;
+    }
+
+    renderBooks(books);
+  } catch (err) {
+    console.error(err);
+
+    // ✅ GitHub Pages fallback (STATIC)
+    if (IS_GITHUB_PAGES) {
+      const books = [];
+      for (let i = 1; i <= 50; i++) {
+        const num = String(i).padStart(2, "0");
+        books.push({
+          title: `book_${num}`,
+          filename: `book_${num}.pdf`
+        });
+      }
+      renderBooks(books);
+    } else {
+      list.innerHTML = "<p style='color:red'>Failed to load books.</p>";
+    }
   }
 }
 
-function loadUser() {
-  const user = localStorage.getItem("username") || "User";
-  const el = document.querySelector("#usernameDisplay");
-  if (el) el.textContent = user;
+/* ---------- SEARCH ---------- */
+async function searchBooks() {
+  const q = document.getElementById("searchInput").value.trim();
+
+  if (!q) {
+    loadBooks();
+    return;
+  }
+
+  const list = document.getElementById("bookList");
+  list.innerHTML = "Searching...";
+
+  try {
+    const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}`);
+    if (!res.ok) throw new Error("Search API failed");
+
+    const books = await res.json();
+
+    if (books.length === 0) {
+      list.innerHTML = "<p>No matching books found.</p>";
+      return;
+    }
+
+    renderBooks(books);
+  } catch (err) {
+    console.error(err);
+
+    // ✅ simple client-side search fallback
+    if (IS_GITHUB_PAGES) {
+      const books = [];
+      for (let i = 1; i <= 50; i++) {
+        const num = String(i).padStart(2, "0");
+        const title = `book_${num}`;
+        if (title.includes(q)) {
+          books.push({ title, filename: `${title}.pdf` });
+        }
+      }
+      renderBooks(books);
+    } else {
+      list.innerHTML = "<p style='color:red'>Search failed.</p>";
+    }
+  }
 }
 
-// ==========================
-// BOOK RENDER (PERFORMANCE SAFE)
-// ==========================
-function renderBooks(searchQuery = "") {
-  const container = document.querySelector("#booksContainer");
-  if (!container) return;
+/* ---------- RENDER ---------- */
+function renderBooks(books) {
+  const list = document.getElementById("bookList");
+  list.innerHTML = "";
 
-  container.innerHTML = "";
-  const fragment = document.createDocumentFragment();
+  books.forEach(book => {
+    const div = document.createElement("div");
+    div.className = "book-card";
 
-  const start = (currentPage - 1) * BOOKS_PER_PAGE + 1;
-  const end = Math.min(start + BOOKS_PER_PAGE - 1, TOTAL_BOOKS);
+    // ✅ ONLY CHANGE IS HERE
+    const pdfUrl = IS_GITHUB_PAGES
+      ? `../pdfs/${book.filename}`
+      : `${API}/pdf/${book.filename}`;
 
-  for (let i = start; i <= end; i++) {
-    const num = String(i).padStart(2, "0");
-    const bookName = `book_${num}`;
-
-    if (searchQuery && !bookName.includes(searchQuery)) continue;
-
-    const card = document.createElement("div");
-    card.className = "book-card";
-    card.innerHTML = `
-      <h3>${bookName}</h3>
-      <div>
-        <a href="${PDF_FOLDER}/${bookName}.pdf" target="_blank"
-           onclick="logActivity('Viewed ${bookName}')">View</a>
-        &nbsp;|&nbsp;
-        <a href="${PDF_FOLDER}/${bookName}.pdf" download
-           onclick="logActivity('Downloaded ${bookName}')">Download</a>
-      </div>
+    div.innerHTML = `
+      <b>${book.title}</b><br/>
+      <a href="${pdfUrl}" target="_blank"
+         onclick="trackActivity('Viewed ${book.title}')">View</a>
+      |
+      <a href="${pdfUrl}" download
+         onclick="trackActivity('Downloaded ${book.title}')">Download</a>
     `;
-
-    fragment.appendChild(card);
-  }
-
-  container.appendChild(fragment);
-  renderPagination();
+    list.appendChild(div);
+  });
 }
 
-// ==========================
-// PAGINATION
-// ==========================
-function renderPagination() {
-  let pagination = document.querySelector("#pagination");
-
-  if (!pagination) {
-    pagination = document.createElement("div");
-    pagination.id = "pagination";
-    pagination.style.marginTop = "20px";
-    document.querySelector("#booksContainer").after(pagination);
-  }
-
-  pagination.innerHTML = "";
-
-  const totalPages = Math.ceil(TOTAL_BOOKS / BOOKS_PER_PAGE);
-
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    btn.disabled = i === currentPage;
-
-    btn.onclick = () => {
-      currentPage = i;
-      searchBooks();
-    };
-
-    pagination.appendChild(btn);
-  }
-}
-
-// ==========================
-// SEARCH
-// ==========================
-function searchBooks() {
-  currentPage = 1;
-  const query =
-    document.querySelector("#searchInput")?.value.toLowerCase() || "";
-  renderBooks(query);
-}
-
-// ==========================
-// ACTIVITY
-// ==========================
-function logActivity(action) {
+/* ---------- ACTIVITY ---------- */
+function trackActivity(action) {
   let activity = JSON.parse(localStorage.getItem("activity")) || [];
   activity.unshift(action);
   activity = activity.slice(0, 5);
   localStorage.setItem("activity", JSON.stringify(activity));
-  renderActivity();
+  loadActivity();
 }
 
-function renderActivity() {
-  const list = document.querySelector("#activityList");
-  if (!list) return;
-
-  list.innerHTML = "";
+function loadActivity() {
+  const list = document.getElementById("activityList");
   const activity = JSON.parse(localStorage.getItem("activity")) || [];
+  list.innerHTML = "";
 
-  activity.forEach(item => {
+  activity.forEach(a => {
     const li = document.createElement("li");
-    li.textContent = item;
+    li.innerText = a;
     list.appendChild(li);
   });
 }
