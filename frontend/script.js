@@ -8,17 +8,47 @@ const PDF_FOLDER = "../pdfs";
 let currentPage = 1;
 
 // ==========================
-// INIT
+// PAGE INIT
 // ==========================
 document.addEventListener("DOMContentLoaded", () => {
-  loadUser();
-  renderBooks();
-  renderActivity();
+  if (window.location.pathname.includes("dashboard")) {
+    protectDashboard();
+    loadUser();
+    renderBooks();
+    renderActivity();
+  }
 });
 
 // ==========================
-// USER
+// LOGIN / AUTH
 // ==========================
+function login() {
+  const input = document.querySelector("#username");
+  if (!input || !input.value.trim()) {
+    alert("Please enter a username");
+    return;
+  }
+
+  localStorage.setItem("username", input.value.trim());
+  window.location.href = "dashboard.html";
+}
+
+function register() {
+  login(); // demo system
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+function protectDashboard() {
+  const user = localStorage.getItem("username");
+  if (!user) {
+    window.location.href = "index.html";
+  }
+}
+
 function loadUser() {
   const user = localStorage.getItem("username") || "User";
   const el = document.querySelector("#usernameDisplay");
@@ -26,15 +56,15 @@ function loadUser() {
 }
 
 // ==========================
-// BOOK RENDER (FAST)
+// BOOK RENDER (PERFORMANCE SAFE)
 // ==========================
 function renderBooks(searchQuery = "") {
   const container = document.querySelector("#booksContainer");
   if (!container) return;
 
   container.innerHTML = "";
-
   const fragment = document.createDocumentFragment();
+
   const start = (currentPage - 1) * BOOKS_PER_PAGE + 1;
   const end = Math.min(start + BOOKS_PER_PAGE - 1, TOTAL_BOOKS);
 
@@ -46,7 +76,6 @@ function renderBooks(searchQuery = "") {
 
     const card = document.createElement("div");
     card.className = "book-card";
-
     card.innerHTML = `
       <h3>${bookName}</h3>
       <div>
@@ -85,14 +114,11 @@ function renderPagination() {
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
-    btn.style.margin = "4px";
     btn.disabled = i === currentPage;
 
     btn.onclick = () => {
       currentPage = i;
-      renderBooks(
-        document.querySelector("#searchInput")?.value.toLowerCase() || ""
-      );
+      searchBooks();
     };
 
     pagination.appendChild(btn);
@@ -104,7 +130,8 @@ function renderPagination() {
 // ==========================
 function searchBooks() {
   currentPage = 1;
-  const query = document.querySelector("#searchInput")?.value.toLowerCase() || "";
+  const query =
+    document.querySelector("#searchInput")?.value.toLowerCase() || "";
   renderBooks(query);
 }
 
@@ -131,12 +158,4 @@ function renderActivity() {
     li.textContent = item;
     list.appendChild(li);
   });
-}
-
-// ==========================
-// LOGOUT
-// ==========================
-function logout() {
-  localStorage.clear();
-  window.location.href = "index.html";
 }
