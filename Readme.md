@@ -2,7 +2,7 @@
 
 A lightweight **Library Management System** built using **HTML, CSS, JavaScript, Python (FastAPI)**, and **SQLite**, designed to demonstrate **full-stack fundamentals**, **file-based content delivery**, and **deployment constraints handling** (local vs GitHub Pages).
 
-This project allows users to **log in**, **browse a digital library of 50 PDF books**, **view or download them**, and **track activity history** — all with a clean, professional UI.
+This project allows users to **log in**, **browse a digital library of 50 PDF books**, **view or download them**, and **track activity history** all with a clean, professional UI.
 
 ## 🚀 Live Demo (Frontend)
 
