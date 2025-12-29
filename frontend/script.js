@@ -1,71 +1,59 @@
+// frontend/script.js
+
 document.addEventListener("DOMContentLoaded", () => {
-  if (location.pathname.includes("dashboard")) {
-    checkAuth();
-    loadBooks();
-    loadActivity();
-  }
+  checkAuth();
+  loadBooks();
+  loadActivity();
 });
 
-/* ---------- AUTH ---------- */
-function login() {
-  const user = document.getElementById("username").value.trim();
-  if (!user) return alert("Enter username");
-  localStorage.setItem("user", user);
-  location.href = "dashboard.html";
-}
+const TOTAL_BOOKS = 50;
 
-function register() {
-  login();
+/* ---------- AUTH ---------- */
+function checkAuth() {
+  const user = localStorage.getItem("user") || "Guest";
+  document.getElementById("welcome").innerText = `Welcome, ${user}`;
 }
 
 function logout() {
   localStorage.clear();
-  location.href = "index.html";
+  window.location.href = "index.html";
 }
 
-function checkAuth() {
-  const user = localStorage.getItem("user");
-  if (!user) location.href = "index.html";
-  document.getElementById("welcome").innerText = `Welcome, ${user}`;
-}
-
-/* ---------- LOAD BOOKS (STATIC) ---------- */
+/* ---------- LOAD BOOKS ---------- */
 function loadBooks() {
   const list = document.getElementById("bookList");
   list.innerHTML = "";
 
-  const books = [];
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= TOTAL_BOOKS; i++) {
     const num = String(i).padStart(2, "0");
-    books.push({
-      title: `book_${num}`,
-      file: `../pdfs/book_${num}.pdf`
-    });
-  }
+    const fileName = `book_${num}.pdf`;
+    const bookTitle = `book_${num}`;
 
-  books.forEach(book => {
-    const div = document.createElement("div");
-    div.className = "book-card";
-    div.innerHTML = `
-      <strong>${book.title}</strong><br/>
-      <a href="${book.file}" target="_blank"
-         onclick="trackActivity('Viewed ${book.title}')">View</a>
-      |
-      <a href="${book.file}" download
-         onclick="trackActivity('Downloaded ${book.title}')">Download</a>
+    const card = document.createElement("div");
+    card.className = "book-card";
+
+    card.innerHTML = `
+      <h4>${bookTitle}</h4>
+      <div class="actions">
+        <a href="../pdfs/${fileName}" target="_blank"
+           onclick="trackActivity('Viewed ${bookTitle}')">View</a>
+        <a href="../pdfs/${fileName}" download
+           onclick="trackActivity('Downloaded ${bookTitle}')">Download</a>
+      </div>
     `;
-    list.appendChild(div);
-  });
+
+    list.appendChild(card);
+  }
 }
 
 /* ---------- SEARCH ---------- */
 function searchBooks() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
+  const query = document.getElementById("searchInput").value.toLowerCase();
   const cards = document.querySelectorAll(".book-card");
 
   cards.forEach(card => {
-    card.style.display =
-      card.innerText.toLowerCase().includes(q) ? "block" : "none";
+    const title = card.querySelector("h4").innerText.toLowerCase();
+    card.style.display = title.includes(query) ? "block" : "none";
   });
 }
 
@@ -80,12 +68,12 @@ function trackActivity(action) {
 
 function loadActivity() {
   const list = document.getElementById("activityList");
-  const activity = JSON.parse(localStorage.getItem("activity")) || [];
   list.innerHTML = "";
+  const activity = JSON.parse(localStorage.getItem("activity")) || [];
 
-  activity.forEach(a => {
+  activity.forEach(item => {
     const li = document.createElement("li");
-    li.innerText = a;
+    li.innerText = item;
     list.appendChild(li);
   });
 }
