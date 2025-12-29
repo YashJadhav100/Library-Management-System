@@ -1,5 +1,3 @@
-const API = "http://127.0.0.1:8000";
-
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname.includes("dashboard")) {
     checkAuth();
@@ -31,74 +29,55 @@ function checkAuth() {
   document.getElementById("welcome").innerText = `Welcome, ${user}`;
 }
 
-/* ---------- LOAD ALL BOOKS ---------- */
-async function loadBooks() {
-  const list = document.getElementById("bookList");
-  list.innerHTML = "Loading books...";
+/* ---------- BOOK DATA (STATIC) ---------- */
+const books = Array.from({ length: 50 }, (_, i) => {
+  const num = String(i + 1).padStart(2, "0");
+  return {
+    title: `book_${num}`,
+    file: `pdfs/book_${num}.pdf`
+  };
+});
 
-  try {
-    const res = await fetch(`${API}/books`);
-    if (!res.ok) throw new Error("Books API failed");
-
-    const books = await res.json();
-
-    if (books.length === 0) {
-      list.innerHTML = "<p>No books available.</p>";
-      return;
-    }
-
-    renderBooks(books);
-  } catch (err) {
-    console.error(err);
-    list.innerHTML = "<p style='color:red'>Failed to load books.</p>";
-  }
+/* ---------- LOAD BOOKS ---------- */
+function loadBooks() {
+  renderBooks(books);
 }
 
 /* ---------- SEARCH ---------- */
-async function searchBooks() {
-  const q = document.getElementById("searchInput").value.trim();
+function searchBooks() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
 
-  // If search box is empty → show all books again
   if (!q) {
-    loadBooks();
+    renderBooks(books);
     return;
   }
 
-  const list = document.getElementById("bookList");
-  list.innerHTML = "Searching...";
+  const filtered = books.filter(b =>
+    b.title.toLowerCase().includes(q)
+  );
 
-  try {
-    const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}`);
-    if (!res.ok) throw new Error("Search API failed");
-
-    const books = await res.json();
-
-    if (books.length === 0) {
-      list.innerHTML = "<p>No matching books found.</p>";
-      return;
-    }
-
-    renderBooks(books);
-  } catch (err) {
-    console.error(err);
-    list.innerHTML = "<p style='color:red'>Search failed.</p>";
-  }
+  renderBooks(filtered);
 }
 
 /* ---------- RENDER ---------- */
-function renderBooks(books) {
+function renderBooks(bookList) {
   const list = document.getElementById("bookList");
   list.innerHTML = "";
 
-  books.forEach(book => {
+  if (bookList.length === 0) {
+    list.innerHTML = "<p>No matching books found.</p>";
+    return;
+  }
+
+  bookList.forEach(book => {
     const div = document.createElement("div");
     div.className = "book-card";
     div.innerHTML = `
       <b>${book.title}</b><br/>
-      <a href="${API}/pdf/${book.filename}" target="_blank"
+      <a href="${book.file}" target="_blank"
          onclick="trackActivity('Viewed ${book.title}')">View</a>
       |
-      <a href="${API}/pdf/${book.filename}" download
+      <a href="${book.file}" download
          onclick="trackActivity('Downloaded ${book.title}')">Download</a>
     `;
     list.appendChild(div);
