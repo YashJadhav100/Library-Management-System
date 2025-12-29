@@ -5,43 +5,44 @@
 
 body {
   margin: 0;
+  display: flex;
   background: #f6f7fb;
 }
 
-.container {
-  display: flex;
-  height: 100vh;
-}
-
-/* Sidebar */
+/* SIDEBAR */
 .sidebar {
   width: 220px;
   background: #ffffff;
   padding: 20px;
   border-right: 1px solid #ddd;
+  height: 100vh;
 }
 
 .sidebar h2 {
   margin-top: 0;
 }
 
+.sidebar p {
+  margin: 15px 0;
+}
+
 .logout {
-  margin-top: 20px;
-  padding: 10px;
   background: #e74c3c;
-  border: none;
   color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
   cursor: pointer;
+  border-radius: 6px;
 }
 
-/* Main content */
-.main-content {
+/* MAIN */
+.main {
   flex: 1;
-  padding: 30px;
-  overflow-y: auto; /* ✅ THIS FIXES THE ISSUE */
+  padding: 25px;
 }
 
-/* Search */
+/* SEARCH */
 .search-bar {
   display: flex;
   gap: 10px;
@@ -55,35 +56,47 @@ body {
 
 .search-bar button {
   padding: 10px 20px;
+  background: #2c3e50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
 }
 
-/* Books grid */
-#bookList {
+/* BOOK GRID */
+.book-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
+/* BOOK CARD */
 .book-card {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  text-align: center;
 }
 
-.book-card h4 {
-  margin-top: 0;
+.book-card b {
+  display: block;
+  margin-bottom: 10px;
 }
 
-.book-card .actions a {
-  margin-right: 10px;
-  text-decoration: none;
+.book-card a {
   color: #2c3e50;
+  text-decoration: none;
   font-weight: bold;
+  margin: 0 5px;
 }
 
-/* Activity */
-#activityList li {
-  margin-bottom: 6px;
+.book-card a:hover {
+  text-decoration: underline;
+}
+
+/* ACTIVITY */
+ul {
+  padding-left: 20px;
 }
