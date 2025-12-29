@@ -4,10 +4,7 @@ A lightweight **Library Management System** built using **HTML, CSS, JavaScript,
 
 This project allows users to **log in**, **browse a digital library of 50 PDF books**, **view or download them**, and **track activity history** all with a clean, professional UI.
 
-## 🚀 Live Demo (Frontend)
-
-🔗 **GitHub Pages (Frontend Only):**
-[https://yashjadhav100.github.io/Library-Management-System](https://yashjadhav100.github.io/Library-Management-System)
+## 🚀 Live Demo :- [https://yashjadhav100.github.io/Library-Management-System](https://yashjadhav100.github.io/Library-Management-System)
 
 ## 🧠 Project Motivation
 
@@ -34,7 +31,6 @@ This project was built to:
 * Python (FastAPI-style structure)
 * SQLite database
 * Serves book metadata and PDFs
-* Runs on `http://127.0.0.1:8000`
 
 ## 📂 Project Structure
 
@@ -186,7 +182,6 @@ This mirrors **real-world production constraints**.
 Graduate Student, Computer Science
 Syracuse University
 
-🔗 GitHub: [https://github.com/YashJadhav100](https://github.com/YashJadhav100)
-🔗 LinkedIn: [https://www.linkedin.com/in/yashvjadhav](https://www.linkedin.com/in/yashvjadhav)
+🔗 GitHub: [https://github.com/YashJadhav100](https://github.com/YashJadhav100) 
 
-Say the word.
+🔗 LinkedIn: [https://www.linkedin.com/in/yashvjadhav](https://www.linkedin.com/in/yashvjadhav)
