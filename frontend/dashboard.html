@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Library Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<body class="dashboard">
-
+<div class="container">
   <aside class="sidebar">
-    <h2 class="logo">📚 Library</h2>
-    <p id="welcome" class="welcome"></p>
-
+    <h2>📚 Library</h2>
+    <p id="welcome">Welcome</p>
     <button class="logout" onclick="logout()">Logout</button>
   </aside>
 
-  <main class="content">
-
-    <div class="topbar">
-      <input
-        id="searchInput"
-        placeholder="Search books by title or keyword..."
-      />
+  <main class="main-content">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search books..." />
       <button onclick="searchBooks()">Search</button>
     </div>
 
     <h3>Available Books</h3>
-    <div id="bookList" class="book-grid"></div>
+    <div id="bookList"></div>
 
     <h3>Your Activity</h3>
-    <ul id="activityList" class="activity-list"></ul>
-
+    <ul id="activityList"></ul>
   </main>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
